@@ -1,0 +1,15 @@
+[project]
+name = "cloudpulse"
+version = "0.1.0"
+description = "Serverless API observability laboratory on Google Cloud"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "functions-framework>=3.10.2",
+    "httpx>=0.28.1",
+    "numpy>=2.5.4",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
