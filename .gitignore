@@ -276,3 +276,13 @@ keys/*
 .env.*
 !.env.example
 !**/.env.example
+
+# Generated outputs
+outputs/**
+!outputs/
+!outputs/**/
+!outputs/**/.gitkeep
+
+# Terraform plans
+*.tfplan
+planout
