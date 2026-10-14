@@ -1,0 +1,20 @@
+{
+    "recommendations": [
+        // Python: IntelliSense, depuración y formateo.
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        // Terraform: sintaxis, validación y formato.
+        "hashicorp.terraform",
+        // Markdown: aplica .markdownlint.json.
+        "davidanson.vscode-markdownlint",
+        // Variables de entorno.
+        "mikestead.dotenv",
+        // Desarrollo en WSL.
+        "ms-vscode-remote.remote-wsl"
+    ],
+    "unwantedRecommendations": [
+        // Evita ejecutar Python fuera del entorno uv del proyecto.
+        "formulahendry.code-runner"
+    ]
+}

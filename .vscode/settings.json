@@ -1,0 +1,32 @@
+{
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    },
+    "[terraform]": {
+        "editor.defaultFormatter": "hashicorp.terraform"
+    },
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "files.associations": {
+        "*.tfvars": "terraform",
+        ".env.*": "dotenv"
+    },
+    "search.exclude": {
+        "**/.venv": true,
+        "**/.terraform": true,
+        "**/__pycache__": true,
+        "**/uv.lock": true
+    },
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.expand": false,
+    "explorer.fileNesting.patterns": {
+        "README.md": "AGENTS.md, skills-lock.json, .env.example, .gitignore, .python-version, .markdownlint.json",
+        "pyproject.toml": "uv.lock",
+        "main.py": "requirements.txt",
+        "main.tf": "variables.tf, outputs.tf, versions.tf, terraform.tfvars, .terraform.lock.hcl",
+        "simulator.py": "config.json"
+    }
+}
