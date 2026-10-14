@@ -150,8 +150,6 @@ activemq-data/
 *.sage.py
 
 # Environments
-.env
-.envrc
 .venv
 env/
 venv/
@@ -264,3 +262,17 @@ terraform.rc
 # Optional: ignore plan files saved before destroying Terraform configuration
 # Uncomment the line below if you want to ignore planout files.
 # planout
+
+# Secrets
+keys/*
+!keys/.gitkeep
+!keys/README.md
+
+# Environment variables
+.env
+.envrc
+.env.local
+.env.*.local
+.env.*
+!.env.example
+!**/.env.example
