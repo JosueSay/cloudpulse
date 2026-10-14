@@ -21,38 +21,106 @@ Documentación del proceso de preparación, desarrollo y despliegue de una API s
 
 ## 2. Estructura del proyecto
 
-Se creó el repositorio `cloudpulse` con la siguiente estructura inicial:
+Se creó el repositorio `cloudpulse` con una estructura modular que separa la API, el simulador de tráfico, la infraestructura, las pruebas, la documentación y los archivos generados.
 
 ```text
 cloudpulse/
-├── infra/
-│   ├── versions.tf
-│   ├── variables.tf
-│   ├── main.tf
-│   ├── outputs.tf
-│   └── terraform.tfvars
+├── .agents/
+│   ├── agents/
+│   └── skills/
+├── .env.example
+├── .gitignore
+├── .python-version
+├── AGENTS.md
+├── README.md
 ├── backend/
 │   ├── main.py
 │   └── requirements.txt
+├── docs/
+│   └── guide.md
+├── infra/
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars
+│   ├── variables.tf
+│   └── versions.tf
+├── keys/
+│   └── .gitkeep
+├── outputs/
+│   ├── logs/
+│   │   ├── .gitkeep
+│   │   └── estructura.log
+│   ├── reports/
+│   │   └── .gitkeep
+│   ├── simulator/
+│   │   └── .gitkeep
+│   └── terraform/
+│       └── .gitkeep
+├── pyproject.toml
 ├── simulator/
-│   ├── simulator.py
-│   └── config.json
-└── README.md
+│   ├── config.json
+│   └── simulator.py
+├── skills-lock.json
+├── tests/
+└── uv.lock
 ```
 
-Se definieron además las siguientes convenciones para incorporar al repositorio:
+*Nota:* Se omiten del árbol algunos archivos ocultos, directorios temporales y contenidos internos de los agentes para mantener la representación legible.
 
-- `AGENTS.md`: instrucciones de desarrollo y seguridad para agentes de IA.
-- `.agents/skills/`: habilidades e instrucciones reutilizables.
-- `keys/`: directorio local reservado para credenciales excepcionales.
-- `.env.example`: plantilla de configuración no sensible.
-- `pyproject.toml`: configuración y dependencias Python.
-- `uv.lock`: versiones resueltas de dependencias.
-- `.python-version`: versión de Python del proyecto.
-- `tests/`: pruebas automatizadas.
-- `docs/`: documentación técnica.
+### 2.1. Organización de directorios
 
-### Seguridad
+| Directorio | Propósito |
+| --- | --- |
+| `.agents/agents/` | Agentes especializados para desarrollo, infraestructura, observabilidad y revisión. |
+| `.agents/skills/` | Skills locales reutilizables para pruebas, depuración y verificación. |
+| `backend/` | Implementación de la API HTTP serverless. |
+| `docs/` | Documentación técnica y guía de configuración. |
+| `infra/` | Definición declarativa de infraestructura mediante Terraform. |
+| `keys/` | Directorio reservado para credenciales locales excepcionales, excluidas del control de versiones. |
+| `outputs/` | Directorio centralizado para archivos generados durante el desarrollo y la ejecución. |
+| `simulator/` | Simulación de tráfico HTTP y escenarios de errores. |
+| `tests/` | Pruebas automatizadas del proyecto. |
+
+### 2.2. Organización de archivos generados
+
+Se estableció `outputs/` como ubicación centralizada para los resultados generados por las herramientas del proyecto.
+
+- `outputs/logs/`: registros y archivos de diagnóstico, incluido `estructura.log`.
+- `outputs/reports/`: reportes y resultados de análisis.
+- `outputs/simulator/`: resultados de simulación, incluido el futuro `requests.csv`.
+- `outputs/terraform/`: planes de ejecución y otros artefactos temporales de Terraform.
+
+Cada subdirectorio contiene un archivo `.gitkeep` para conservar su estructura en Git sin versionar los archivos generados.
+
+Los archivos de estado de Terraform permanecen excluidos del repositorio y no deben tratarse como simples reportes, ya que pueden contener información sensible.
+
+### 2.3. Configuración y dependencias
+
+| Archivo | Propósito |
+| --- | --- |
+| `AGENTS.md` | Instrucciones, responsabilidades y restricciones para agentes de IA. |
+| `skills-lock.json` | Registro de las skills instaladas y sus versiones o referencias. |
+| `.env.example` | Plantilla de parámetros locales no sensibles. |
+| `.gitignore` | Exclusión de credenciales, entornos virtuales, estados de Terraform y archivos generados. |
+| `.python-version` | Versión de Python seleccionada para el proyecto. |
+| `pyproject.toml` | Metadatos y dependencias Python administradas con uv. |
+| `uv.lock` | Resolución reproducible de dependencias. |
+| `README.md` | Descripción general y punto de entrada del repositorio. |
+
+### 2.4. Convenciones de desarrollo
+
+- Separar código fuente, infraestructura, configuración y resultados generados.
+- Centralizar los artefactos de ejecución en `outputs/`.
+- Versionar archivos de configuración de ejemplo, nunca credenciales.
+- Utilizar `.gitkeep` para conservar directorios que deban existir inicialmente vacíos.
+- Mantener `uv.lock`, `skills-lock.json` y `.terraform.lock.hcl` bajo control de versiones.
+- Utilizar `AGENTS.md` y las skills locales como referencia para el desarrollo asistido por IA.
+- Mantener parámetros de infraestructura en Terraform y parámetros locales no sensibles en archivos de configuración.
+- Evitar duplicar configuraciones y rutas mediante constantes dispersas en el código.
+
+**Adaptación del laboratorio:** El archivo `requests.csv`, originalmente previsto en `simulator/`, se generará en `outputs/simulator/`; esta ruta deberá configurarse explícitamente durante la implementación del simulador.
+
+### 2.5 Seguridad
 
 - No almacenar credenciales en Git.
 - No permitir a los agentes acceder a `keys/` ni a archivos sensibles.
@@ -374,11 +442,11 @@ Finalmente, seleccionar **Finalizar** para guardar el presupuesto.
 
 **Consideraciones:** El presupuesto de US$5 es una referencia mensual, no un límite obligatorio de consumo. Las alertas pueden llegar con retraso y no suspenden automáticamente los servicios cuando se alcanza el importe configurado.
 
-## 5.9. Verificar facturación y permisos de Google Cloud
+### 5.9. Verificar facturación y permisos de Google Cloud
 
 Antes de configurar Terraform, verificaremos que `cloudpulse-lab-2026` tenga facturación activa y que tu cuenta pueda administrar los recursos.
 
-### 5.9.1. Verificar facturación
+#### 5.9.1. Verificar facturación
 
 Ejecuta desde WSL2:
 
@@ -392,7 +460,7 @@ El resultado debe contener:
 billingEnabled: true
 ```
 
-### 5.9.2. Verificar el proyecto activo
+#### 5.9.2. Verificar el proyecto activo
 
 ```bash
 gcloud config get-value project
@@ -404,7 +472,7 @@ Resultado esperado:
 cloudpulse-lab-2026
 ```
 
-### 5.9.3. Verificar los permisos
+#### 5.9.3. Verificar los permisos
 
 ```bash
 gcloud rojects get-iam-policy cloudpulse-lab-2026 \
