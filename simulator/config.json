@@ -1,0 +1,30 @@
+{
+  "target_url": "http://localhost:8080",
+  "n_requests": 6000,
+  "mu_min": 30,
+  "sigma_min": 10,
+  "invalid_share": 0.08,
+  "seed": 42,
+  "duration_min": 60,
+  "seconds_per_minute": 60,
+  "operation_mix": {
+    "create": 0.5,
+    "read": 0.3,
+    "cancel": 0.2
+  },
+  "output_csv": "../outputs/simulator/requests.csv",
+  "timeout_s": 10.0,
+  "max_connections": 50,
+  "quick": {
+    "n_requests": 30,
+    "seconds_per_minute": 0.05
+  },
+  "scenarios": [
+    {
+      "start_min": 35,
+      "end_min": 45,
+      "effect": "double_errors",
+      "category": "electronics"
+    }
+  ]
+}
