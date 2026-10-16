@@ -1,0 +1,163 @@
+{
+  "displayName": "${dashboard_display_name}",
+  "mosaicLayout": {
+    "columns": 12,
+    "tiles": [
+      {
+        "xPos": 0, "yPos": 0, "width": 12, "height": 2,
+        "widget": {
+          "title": "Cómo leer este dashboard",
+          "text": {
+            "format": "MARKDOWN",
+            "content": "Paneles **1-3**: métricas nativas de Cloud Run (`run.googleapis.com`). Panel **4**: métrica basada en logs sobre `jsonPayload.outcome`. Paneles **5a/5b**: SQL de Log Analytics sobre la vista `${log_view_path}`. Panel **6**: entradas con `severity >= WARNING`.\n\n**Tiempo:** el panel 5 mide el minuto de llegada **observado** (distancia al primer evento de la corrida). El minuto *programado* del simulador (`scheduled_min`, de una normal mu=30 sigma=10) no llega a Cloud Logging y solo existe en `outputs/simulator/requests.csv`. Las dos series no son la misma."
+          }
+        }
+      },
+      {
+        "xPos": 0, "yPos": 2, "width": 6, "height": 4,
+        "widget": {
+          "title": "1 · Solicitudes por minuto (métrica nativa)",
+          "xyChart": {
+            "chartOptions": { "mode": "COLOR" },
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "prometheusQuery": "sum(rate(run_googleapis_com:request_count{monitored_resource=\"cloud_run_revision\",service_name=\"${service_name}\"}[5m])) * 60",
+                  "unitOverride": "1/min"
+                },
+                "plotType": "LINE",
+                "targetAxis": "Y1"
+              }
+            ],
+            "yAxis": { "label": "Request Rate", "scale": "LINEAR" }
+          }
+        }
+      },
+      {
+        "xPos": 6, "yPos": 2, "width": 6, "height": 4,
+        "widget": {
+          "title": "2 · Latencia p50 y p95 (métrica nativa)",
+          "xyChart": {
+            "chartOptions": { "mode": "COLOR" },
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "prometheusQuery": "histogram_quantile(0.50, sum(rate(run_googleapis_com:request_latencies_bucket{monitored_resource=\"cloud_run_revision\",service_name=\"${service_name}\"}[5m])) by (le))",
+                  "unitOverride": "ms"
+                },
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "legendTemplate": "p50"
+              },
+              {
+                "timeSeriesQuery": {
+                  "prometheusQuery": "histogram_quantile(0.95, sum(rate(run_googleapis_com:request_latencies_bucket{monitored_resource=\"cloud_run_revision\",service_name=\"${service_name}\"}[5m])) by (le))",
+                  "unitOverride": "ms"
+                },
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "legendTemplate": "p95"
+              }
+            ],
+            "yAxis": { "label": "Latency", "scale": "LINEAR" }
+          }
+        }
+      },
+      {
+        "xPos": 0, "yPos": 6, "width": 6, "height": 4,
+        "widget": {
+          "title": "3 · Instancias activas e inactivas (métrica nativa)",
+          "xyChart": {
+            "chartOptions": { "mode": "COLOR" },
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "prometheusQuery": "sum(run_googleapis_com:container_instance_count{monitored_resource=\"cloud_run_revision\",service_name=\"${service_name}\"}) by (state)",
+                  "unitOverride": "1"
+                },
+                "plotType": "STACKED_AREA",
+                "targetAxis": "Y1"
+              }
+            ],
+            "yAxis": { "label": "Instances", "scale": "LINEAR" }
+          }
+        }
+      },
+      {
+        "xPos": 6, "yPos": 6, "width": 6, "height": 4,
+        "widget": {
+          "title": "4 · Errores por outcome (métrica basada en logs)",
+          "xyChart": {
+            "chartOptions": { "mode": "COLOR" },
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "prometheusQuery": "sum(rate(logging_googleapis_com:user_${metric_prefix}_requests_by_outcome{monitored_resource=\"cloud_run_revision\",service_name=\"${service_name}\"}[5m])) by (outcome) * 60",
+                  "unitOverride": "1/min"
+                },
+                "plotType": "STACKED_AREA",
+                "targetAxis": "Y1"
+              }
+            ],
+            "yAxis": { "label": "Request Rate", "scale": "LINEAR" }
+          }
+        }
+      },
+      {
+        "xPos": 0, "yPos": 10, "width": 6, "height": 4,
+        "widget": {
+          "title": "5a · Media y desviación del minuto observado (Log Analytics SQL)",
+          "timeSeriesTable": {
+            "metricVisualization": "NUMBER",
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "opsAnalyticsQuery": {
+                    "sql": "WITH events AS (SELECT timestamp FROM `${log_view_path}` WHERE JSON_VALUE(json_payload.message) = 'request_completed'), run AS (SELECT MIN(timestamp) AS started_at FROM events), observed AS (SELECT TIMESTAMP_DIFF(events.timestamp, run.started_at, MILLISECOND) / 60000.0 AS observed_min FROM events CROSS JOIN run) SELECT COUNT(*) AS requests, ROUND(AVG(observed_min), 4) AS avg_observed_min, ROUND(STDDEV_SAMP(observed_min), 4) AS stddev_observed_min, ROUND(MIN(observed_min), 4) AS min_observed_min, ROUND(MAX(observed_min), 4) AS max_observed_min FROM observed"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "xPos": 6, "yPos": 10, "width": 6, "height": 4,
+        "widget": {
+          "title": "5b · Curva de llegadas por minuto (Log Analytics SQL)",
+          "xyChart": {
+            "chartOptions": { "mode": "COLOR" },
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "opsAnalyticsQuery": {
+                    "sql": "SELECT TIMESTAMP_TRUNC(timestamp, MINUTE) AS minute, COUNT(*) AS requests FROM `${log_view_path}` WHERE JSON_VALUE(json_payload.message) = 'request_completed' GROUP BY minute ORDER BY minute"
+                  }
+                },
+                "plotType": "STACKED_BAR",
+                "targetAxis": "Y1",
+                "dimensions": [
+                  { "column": "minute", "columnType": "TIMESTAMP", "timeBinSize": "60s", "sortOrder": "SORT_ORDER_ASCENDING" }
+                ],
+                "measures": [
+                  { "column": "requests", "aggregationFunction": { "type": "sum" } }
+                ]
+              }
+            ],
+            "yAxis": { "label": "Requests", "scale": "LINEAR" }
+          }
+        }
+      },
+      {
+        "xPos": 0, "yPos": 14, "width": 12, "height": 5,
+        "widget": {
+          "title": "6 · Logs con severity >= WARNING",
+          "logsPanel": {
+            "filter": "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${service_name}\" AND severity>=WARNING",
+            "resourceNames": ["projects/${project_id}"]
+          }
+        }
+      }
+    ]
+  }
+}
