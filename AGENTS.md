@@ -56,11 +56,28 @@ Responsible for validation.
 
 ## Skills
 
-Use these skills when applicable:
+Use these skills when applicable.
+
+### Engineering practice
 
 - `test-driven-development`: before implementing API behavior.
 - `systematic-debugging`: when deployment, API or monitoring failures occur.
 - `verification-before-completion`: before declaring a task complete.
+
+### Google Cloud
+
+- `gcloud`: before proposing or running any `gcloud` command.
+- `cloud-run-basics`: when deploying or configuring the Cloud Run function.
+- `google-cloud-storage-basics`: when provisioning the bucket that holds the function source.
+- `iam-helper-for-policy-management`: when creating service accounts or granting roles.
+
+### Observability
+
+- `cloud-logging-configuration-basics`: when defining log buckets, log views and log-based metrics.
+- `cloud-logging-query-generation`: when writing Logging Query Language filters over the structured events.
+- `cloud-monitoring-metric-selection`: when identifying native Cloud Run metric descriptors.
+- `cloud-monitoring-promql-query`: when writing PromQL for dashboard charts.
+- `cloud-monitoring-chart-generation`: when generating dashboard widget definitions.
 
 ## Constraints
 

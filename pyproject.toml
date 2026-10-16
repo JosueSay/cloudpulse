@@ -2,7 +2,7 @@
 name = "cloudpulse"
 version = "0.1.0"
 description = "Serverless API observability laboratory on Google Cloud"
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.13,<3.14"
 dependencies = [
     "functions-framework>=3.10.2",
     "httpx>=0.28.1",

@@ -1,23 +1,86 @@
 {
   "version": 1,
   "skills": {
+    "cloud-logging-configuration-basics": {
+      "source": "google/skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloud/cloud-logging-configuration-basics/SKILL.md",
+      "computedHash": "7c317c0ed9506b62b1a361aba6640917cf7ff575fbb84d0e624a7705a643ba65"
+    },
+    "cloud-logging-query-generation": {
+      "source": "google/skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloud/cloud-logging-query-generation/SKILL.md",
+      "computedHash": "dffc5cda98a3025db64f8d60c5d0ec1b0d379b29638ec3d39aa947a2072b9ca1"
+    },
+    "cloud-monitoring-chart-generation": {
+      "source": "google/skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloud/cloud-monitoring-chart-generation/SKILL.md",
+      "computedHash": "5be38e4abb99af741cbadf9385ac53532d2c1e00cabf02251d43cb215d33df58"
+    },
+    "cloud-monitoring-metric-selection": {
+      "source": "google/skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloud/cloud-monitoring-metric-selection/SKILL.md",
+      "computedHash": "a4f80fd41721cca2273f6aaf05bc0bc5955f4584ea12821b4b3d9b9d35f76c05"
+    },
+    "cloud-monitoring-promql-query": {
+      "source": "google/skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloud/cloud-monitoring-promql-query/SKILL.md",
+      "computedHash": "125921a3f7d0558f0491f7a40abf335470bee32529428066291e4a405fae0f91"
+    },
+    "cloud-run-basics": {
+      "source": "google/skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloud/cloud-run-basics/SKILL.md",
+      "computedHash": "a0446f5d1ce8edcb6413b34b7ee5f9a50941f7813dc12a650b258dd6f5435c50"
+    },
+    "gcloud": {
+      "source": "google/skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloud/gcloud/SKILL.md",
+      "computedHash": "8c6ef3bac2e79d70a48010c9637eef9b7a0c871361a2ded9b2bdc97c9047a83f"
+    },
+    "google-cloud-storage-basics": {
+      "source": "google/skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloud/google-cloud-storage-basics/SKILL.md",
+      "computedHash": "94528da5f11f31c54207dfc032a94cf05a4ae7ea192e355068f6405b58c66915"
+    },
+    "iam-helper-for-policy-management": {
+      "source": "google/skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloud/iam-helper-for-policy-management/SKILL.md",
+      "computedHash": "8101f343b1ca929c72acb46b813d43c66f89f66c99bfb64a108a16ed2c78e6cc"
+    },
     "systematic-debugging": {
       "source": "obra/superpowers",
       "sourceType": "github",
+      "sourceVersion": "7.0.0",
+      "sourceCommit": "bb92a77741419a4ab5f06e711a283343f1ada0c3",
       "skillPath": "skills/systematic-debugging/SKILL.md",
-      "computedHash": "276fb0aadb002ab930cc2a56de89e16995a2e3e70b33587652bf0a5fb123148d"
+      "installPath": ".agents/skills/systematic-debugging",
+      "computedHash": "51c6435d98c83c42c96ba7c35725a0b2c376cd487fb1a4e6bd0ddbe7e33ef202"
     },
     "test-driven-development": {
       "source": "obra/superpowers",
       "sourceType": "github",
+      "sourceVersion": "7.0.0",
+      "sourceCommit": "bb92a77741419a4ab5f06e711a283343f1ada0c3",
       "skillPath": "skills/test-driven-development/SKILL.md",
-      "computedHash": "3cfe4ebb6fa7288f668d87880d279c8e48f7a92b63415e296857060f5ce22e05"
+      "installPath": ".agents/skills/test-driven-development",
+      "computedHash": "64b03fce4aee5a97a93160cea8111f3ba13a17b7c001db4bd5836d67fd10705d"
     },
     "verification-before-completion": {
       "source": "obra/superpowers",
       "sourceType": "github",
+      "sourceVersion": "7.0.0",
+      "sourceCommit": "bb92a77741419a4ab5f06e711a283343f1ada0c3",
       "skillPath": "skills/verification-before-completion/SKILL.md",
-      "computedHash": "b529822bdac4b197b180fe12225cff86b930b65910435103c10622df7f041651"
+      "installPath": ".agents/skills/verification-before-completion",
+      "computedHash": "2befe7fc55bcadaa3d97dd9e8efeb633d2561c0ebe74c5a8b17c4d9e7e4520b3"
     }
   }
 }

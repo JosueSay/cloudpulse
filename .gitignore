@@ -263,6 +263,10 @@ terraform.rc
 # Uncomment the line below if you want to ignore planout files.
 # planout
 
+# Agent tooling: the vendored skills and the relative symlink are versioned on
+# purpose (see docs/guide.md 2.1); the per-machine settings file is not.
+.claude/settings.local.json
+
 # Secrets
 keys/*
 !keys/.gitkeep
@@ -286,3 +290,22 @@ outputs/**
 # Terraform plans
 *.tfplan
 planout
+tfplan
+tfplan-*
+
+# Service account keys and credential files, wherever they land.
+# The project authenticates with Application Default Credentials, which live in
+# ~/.config/gcloud and never inside the repository; these patterns exist so a
+# key downloaded by mistake (`gcloud iam service-accounts keys create …`) cannot
+# be committed from the repository root either.
+*-credentials.json
+credentials.json
+client_secret*.json
+service-account*.json
+*-sa-key.json
+adc.json
+application_default_credentials.json
+*.pem
+*.p12
+*.key
+!**/*.pub
