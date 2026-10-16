@@ -1,0 +1,4 @@
+# Runtime dependencies for the Cloud Run function (python313).
+# Flask is not listed separately: the HTTP signature of Functions Framework is
+# Flask-based and pins a compatible version itself.
+functions-framework==3.10.2
