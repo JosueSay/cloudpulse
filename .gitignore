@@ -287,6 +287,12 @@ outputs/**
 !outputs/**/
 !outputs/**/.gitkeep
 
+# Excepción: los informes del laboratorio y sus evidencias SÍ se versionan.
+# Son el entregable, no un artefacto regenerable. Todo lo demás de outputs/
+# —el CSV de la corrida, los logs y los planes de Terraform— sigue ignorado.
+!outputs/reports/*.md
+!outputs/reports/evidence/*.png
+
 # Terraform plans
 *.tfplan
 planout
