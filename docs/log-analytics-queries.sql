@@ -91,6 +91,8 @@ FROM
   `cloudpulse-lab-2026.us-central1.cloudpulse-logs.cloudpulse_requests`
 WHERE
   JSON_VALUE(json_payload.message) = 'request_completed'
+  AND timestamp >= TIMESTAMP('2026-10-16 10:56:56+00')  -- inicio de la corrida
+  AND timestamp <= TIMESTAMP('2026-10-16 11:55:18+00')  -- fin de la corrida
 GROUP BY
   minute
 ORDER BY
@@ -120,6 +122,8 @@ FROM
   `cloudpulse-lab-2026.us-central1.cloudpulse-logs.cloudpulse_requests`
 WHERE
   JSON_VALUE(json_payload.message) = 'request_completed'
+  AND timestamp >= TIMESTAMP('2026-10-16 10:56:56+00')  -- inicio de la corrida
+  AND timestamp <= TIMESTAMP('2026-10-16 11:55:18+00')  -- fin de la corrida
 GROUP BY
   outcome
 ORDER BY
@@ -144,6 +148,8 @@ FROM
   `cloudpulse-lab-2026.us-central1.cloudpulse-logs.cloudpulse_requests`
 WHERE
   JSON_VALUE(json_payload.message) = 'request_completed'
+  AND timestamp >= TIMESTAMP('2026-10-16 10:56:56+00')  -- inicio de la corrida
+  AND timestamp <= TIMESTAMP('2026-10-16 11:55:18+00')  -- fin de la corrida
   AND JSON_VALUE(json_payload.outcome) != 'success'
 GROUP BY
   endpoint,
@@ -179,6 +185,8 @@ WITH
     SELECT timestamp
     FROM `cloudpulse-lab-2026.us-central1.cloudpulse-logs.cloudpulse_requests`
     WHERE JSON_VALUE(json_payload.message) = 'request_completed'
+      AND timestamp >= TIMESTAMP('2026-10-16 10:56:56+00')  -- inicio de la corrida
+      AND timestamp <= TIMESTAMP('2026-10-16 11:55:18+00')  -- fin de la corrida
   ),
   run AS (
     SELECT MIN(timestamp) AS started_at, MAX(timestamp) AS ended_at
@@ -219,11 +227,30 @@ FROM
 -- efecto completo se ve en la tasa global de client_error dentro de la
 -- ventana, que es la que compara la consulta 5b.
 
--- APROXIMACION DE 5b: agrupa por minuto de reloj y marca el minuto completo,
--- pero la corrida empezo a las 10:56:57, asi que un minuto de reloj no coincide
--- con un minuto observado. La ventana que marca 5b queda desplazada hasta 1
--- minuto: en la corrida `cc4f0755` incluyo 1.422 solicitudes en vez de las
--- 1.288 que caen estrictamente en el intervalo observado [35,45).
+-- CORRECCION APLICADA (5a, 5b y 5c): la subconsulta `run` lleva AHORA la misma
+-- ventana temporal que `events`. Sin ella, MIN(timestamp) se anclaba en el
+-- evento mas antiguo de la vista —de las pruebas previas de las 10:09— y todos
+-- los minutos observados salian desplazados ~47 minutos, de modo que
+-- `in_scenario` nunca llegaba a ser verdadero. La ejecucion defectuosa quedo
+-- registrada en el historial de depuracion (119 filas).
+--
+-- SEGUNDA CAUSA, independiente de la anterior: el `GROUP BY minute,
+-- observed_min` original partia en dos casi cada minuto de reloj, porque la
+-- corrida empezo a las 10:56:57 y un minuto de reloj abarca dos minutos
+-- observados. Solo por eso la consulta habria devuelto 102 filas aun con la
+-- ventana puesta. Agrupar unicamente por `minute`, resumiendo con
+-- MIN(observed_min) y LOGICAL_OR(...), da una fila por minuto.
+--
+-- Con las dos correcciones, 5b devuelve 60 filas: verificado en la consola y
+-- capturado en outputs/reports/evidence/06-errors-per-minute.png.
+--
+-- APROXIMACION QUE SIGUE EN PIE en 5b: marca el minuto de reloj completo si
+-- CUALQUIER evento suyo cae en la ventana (LOGICAL_OR), y la corrida empezo a
+-- las 10:56:57, asi que un minuto de reloj no coincide con un minuto
+-- observado. Calculado sobre los 6.000 eventos reales, eso marca 11 minutos
+-- (11:31-11:41 UTC) con 1.491 solicitudes, en vez de las 1.288 que caen
+-- estrictamente en el intervalo observado [35,45). Por eso existe 5c, que
+-- autocalibra la ventana y no depende del minuto de reloj.
 
 -- 5a. Por categoría, dentro y fuera de la ventana.
 WITH
@@ -231,6 +258,8 @@ WITH
     SELECT MIN(timestamp) AS started_at
     FROM `cloudpulse-lab-2026.us-central1.cloudpulse-logs.cloudpulse_requests`
     WHERE JSON_VALUE(json_payload.message) = 'request_completed'
+      AND timestamp >= TIMESTAMP('2026-10-16 10:56:56+00')  -- inicio de la corrida
+      AND timestamp <= TIMESTAMP('2026-10-16 11:55:18+00')  -- fin de la corrida
   ),
   events AS (
     SELECT
@@ -242,6 +271,8 @@ WITH
       AS logs
     CROSS JOIN run
     WHERE JSON_VALUE(logs.json_payload.message) = 'request_completed'
+      AND logs.timestamp >= TIMESTAMP('2026-10-16 10:56:56+00')  -- inicio de la corrida
+      AND logs.timestamp <= TIMESTAMP('2026-10-16 11:55:18+00')  -- fin de la corrida
   )
 SELECT
   IF(observed_min >= 35 AND observed_min < 45, 'scenario', 'baseline')
@@ -268,6 +299,8 @@ WITH
     SELECT MIN(timestamp) AS started_at
     FROM `cloudpulse-lab-2026.us-central1.cloudpulse-logs.cloudpulse_requests`
     WHERE JSON_VALUE(json_payload.message) = 'request_completed'
+      AND timestamp >= TIMESTAMP('2026-10-16 10:56:56+00')  -- inicio de la corrida
+      AND timestamp <= TIMESTAMP('2026-10-16 11:55:18+00')  -- fin de la corrida
   ),
   events AS (
     SELECT
@@ -282,22 +315,21 @@ WITH
       AS logs
     CROSS JOIN run
     WHERE JSON_VALUE(logs.json_payload.message) = 'request_completed'
+      AND logs.timestamp >= TIMESTAMP('2026-10-16 10:56:56+00')  -- inicio de la corrida
+      AND logs.timestamp <= TIMESTAMP('2026-10-16 11:55:18+00')  -- fin de la corrida
   )
 SELECT
   minute,
-  observed_min,
-  observed_min >= 35 AND observed_min < 45 AS in_scenario,
+  MIN(observed_min) AS observed_min,
+  LOGICAL_OR(observed_min >= 35 AND observed_min < 45) AS in_scenario,
   COUNT(*) AS requests,
   COUNTIF(outcome = 'client_error') AS client_errors,
-  ROUND(100 * COUNTIF(outcome = 'client_error') / COUNT(*), 2)
-    AS client_error_pct
-FROM
-  events
-GROUP BY
-  minute,
-  observed_min
-ORDER BY
-  minute;
+  ROUND(
+    100 * COUNTIF(outcome = 'client_error') / COUNT(*), 2
+  ) AS client_error_pct
+FROM events
+GROUP BY minute
+ORDER BY minute;
 
 
 -- 5c. La misma ventana, AUTOCALIBRADA contra el desvío de reloj.
@@ -316,6 +348,8 @@ WITH
         AS span_min
     FROM `cloudpulse-lab-2026.us-central1.cloudpulse-logs.cloudpulse_requests`
     WHERE JSON_VALUE(json_payload.message) = 'request_completed'
+      AND timestamp >= TIMESTAMP('2026-10-16 10:56:56+00')  -- inicio de la corrida
+      AND timestamp <= TIMESTAMP('2026-10-16 11:55:18+00')  -- fin de la corrida
   ),
   events AS (
     SELECT
@@ -327,6 +361,8 @@ WITH
       AS logs
     CROSS JOIN run
     WHERE JSON_VALUE(logs.json_payload.message) = 'request_completed'
+      AND logs.timestamp >= TIMESTAMP('2026-10-16 10:56:56+00')  -- inicio de la corrida
+      AND logs.timestamp <= TIMESTAMP('2026-10-16 11:55:18+00')  -- fin de la corrida
   )
 SELECT
   IF(
